@@ -20,3 +20,17 @@ CREATE TABLE `locations` (
   `osm_id` int(11) DEFAULT NULL,
   `display_name` text
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT;
+
+CREATE TABLE `steps` (
+  `tst` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `from` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `to` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `steps` int(11) NOT NULL,
+  `distance` decimal(20,10) DEFAULT NULL,
+  `floorsdown` int(11) DEFAULT NULL,
+  `floorsup` int(11) DEFAULT NULL,
+  `tid` varchar(45) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+ALTER TABLE `steps`
+  ADD PRIMARY KEY (`tst`,`from`,`to`,`tid`);

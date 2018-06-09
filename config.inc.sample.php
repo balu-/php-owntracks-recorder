@@ -10,6 +10,9 @@
 	$_config['sql_db'] = '';
 	
 	$_config['sql_prefix'] = '';
+
+	$_config['steps_request'] = False; //request stepcount from devices
+	$_config['steps_min_time_between_step_request'] = 60*60; //do not request steps if last submitted steps is newer then this value
 	
 	$_config['default_accuracy'] = 1000; //meters
 	$_config['default_trackerID'] = 'all';
