@@ -117,26 +117,50 @@ if ($type == 'location') {
 
 	_log('keys $epoch.$from.$to.$steps.$distance.$floorsdown.$floorsup.$topic[2]');
 	_log("keys ".$epoch."|".$from."|".$to."|".$steps."|".$distance."|".$floorsdown."|".$floorsup."|".$topic[2]);
-	$sql = "INSERT INTO ".$_config['sql_prefix']."`steps` (`tst`, `from`, `to`, `steps`, `distance`, `floorsdown`, `floorsup`, `tid`) VALUES (FROM_UNIXTIME(?), FROM_UNIXTIME(?), FROM_UNIXTIME(?), ?, ?, ?, ?, ?)";
 
-	_log("Insert steps sql ".$sql);
-    $stmt = $mysqli->prepare($sql);
-    $stmt->bind_param('iiiidiis', $epoch,$from,$to,$steps,$distance,$floorsdown,$floorsup,$topic[2]);
-			    
-    if ($stmt->execute()){
-    	
-    	# bind parameters (s = string, i = integer, d = double,  b = blob)
-	    http_response_code(200);
-		//opentracks does not support msg as response $response['msg'] = "OK record saved";
-		_log("Insert Steps OK");
+	$sql = "SELECT `to` FROM ".$_config['sql_prefix']."steps WHERE tid=? AND `from`=FROM_UNIXTIME(?)";
 	
-    }else{
-		http_response_code(500);
-		_log("Insert steps KO - Can't write to database : ".$stmt->error);
-		die("Can't write to database : ".$stmt->error);
-		//opentracks does not support msg as response $response['msg'] = "Can't write to database";
-	}
+	_log("Duplicate SQL = ".$sql);
+	
+	if ($stmt = $mysqli->prepare($sql)){
+    	$stmt->bind_param('si',$topic[2],$from);
+    	$stmt->execute();
+		$stmt->store_result();
+		
+		_log("Duplicate SQL : Rows found =  ".$stmt->num_rows);
 
+	    //record only if same data found at same epoch / tracker_id
+	    if($stmt->num_rows == 0) {
+
+
+
+
+			$sql = "INSERT INTO ".$_config['sql_prefix']."`steps` (`tst`, `from`, `to`, `steps`, `distance`, `floorsdown`, `floorsup`, `tid`) VALUES (FROM_UNIXTIME(?), FROM_UNIXTIME(?), FROM_UNIXTIME(?), ?, ?, ?, ?, ?)";
+
+			_log("Insert steps sql ".$sql);
+		    $stmt = $mysqli->prepare($sql);
+		    $stmt->bind_param('iiiidiis', $epoch,$from,$to,$steps,$distance,$floorsdown,$floorsup,$topic[2]);
+					    
+		    if ($stmt->execute()){
+		    	
+		    	# bind parameters (s = string, i = integer, d = double,  b = blob)
+			    http_response_code(200);
+				//opentracks does not support msg as response $response['msg'] = "OK record saved";
+				_log("Insert Steps OK");
+			
+		    }else{
+				http_response_code(500);
+				_log("Insert steps KO - Can't write to database : ".$stmt->error);
+				die("Can't write to database : ".$stmt->error);
+				//opentracks does not support msg as response $response['msg'] = "Can't write to database";
+			}
+		} else {
+			http_response_code(200);
+			_log("do not insert, dublicate from time");
+		}
+	} else {
+		_log("could not connect mysql");
+	}
 } else {
 	http_response_code(204);
 	//opentracks does not support msg as response $response['msg'] = "OK type is not location";
@@ -165,9 +189,9 @@ if ($_config['steps_request']){
 				$response['from'] = $to_time;
 				$to_plus_one_day = $to_time + 60*60*24;
 				if($to_plus_one_day < $now){
-					$response['to'] = $to_plus_one_day->getTimestamp();
+					$response['to'] = $to_plus_one_day;
 				} else {
-					$response['to'] = $now->getTimestamp();
+					$response['to'] = $now;
 				}
 				_log("request steps");
 				$responses[] = $response;
