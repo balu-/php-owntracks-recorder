@@ -18,7 +18,8 @@ CREATE TABLE `locations` (
   `connection` varchar(1) DEFAULT NULL,
   `place_id` int(11) DEFAULT NULL,
   `osm_id` int(11) DEFAULT NULL,
-  `display_name` text
+  `display_name` text,
+  `inregions` VARCHAR(1024) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT;
 
 CREATE TABLE `steps` (

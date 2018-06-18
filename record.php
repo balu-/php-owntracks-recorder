@@ -68,9 +68,14 @@ if ($type == 'location') {
 	    //record only if same data found at same epoch / tracker_id
 	    if($stmt->num_rows == 0) {
 
-			$sql = "INSERT INTO ".$_config['sql_prefix']."locations (accuracy, altitude, battery_level, heading, description, event, latitude, longitude, radius, trig, tracker_id, epoch, vertical_accuracy, velocity, pressure, connection, place_id, osm_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+	    	$inregions = "";
+	    	if (array_key_exists('inregions', $data) && is_array($data['inregions'])){
+	    		$inregions = json_encode($data['inregions']);
+	    	} 
+
+			$sql = "INSERT INTO ".$_config['sql_prefix']."locations (accuracy, altitude, battery_level, heading, description, event, latitude, longitude, radius, trig, tracker_id, epoch, vertical_accuracy, velocity, pressure, connection, place_id, osm_id, inregions) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 		    $stmt = $mysqli->prepare($sql);
-		    $stmt->bind_param('iiiissddissiiidsii', $accuracy, $altitude, $battery_level, $heading, $description, $event, $latitude, $longitude, $radius, $trig, $tracker_id, $epoch, $vertical_accuracy, $velocity, $pressure, $connection, $place_id, $osm_id);
+		    $stmt->bind_param('iiiissddissiiidsiis', $accuracy, $altitude, $battery_level, $heading, $description, $event, $latitude, $longitude, $radius, $trig, $tracker_id, $epoch, $vertical_accuracy, $velocity, $pressure, $connection, $place_id, $osm_id, $inregions);
 			    
 		    if ($stmt->execute()){
 		    	
