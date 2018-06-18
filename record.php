@@ -26,6 +26,7 @@ $data =  @json_decode($payload, true);
 
 if (array_key_exists('_type', $data)) $type = strval($data['_type']);
 if (array_key_exists('topic', $data)) $topic = explode("/", strval($data['topic']),4);
+if (array_key_exists(2, $topic)) $device_id = strval($topic[2]);
 
 $responses = array(); //response Array
 
@@ -73,9 +74,9 @@ if ($type == 'location') {
 	    		$inregions = json_encode($data['inregions']);
 	    	} 
 
-			$sql = "INSERT INTO ".$_config['sql_prefix']."locations (accuracy, altitude, battery_level, heading, description, event, latitude, longitude, radius, trig, tracker_id, epoch, vertical_accuracy, velocity, pressure, connection, place_id, osm_id, inregions) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+			$sql = "INSERT INTO ".$_config['sql_prefix']."locations (accuracy, altitude, battery_level, heading, description, event, latitude, longitude, radius, trig, tracker_id, epoch, vertical_accuracy, velocity, pressure, connection, place_id, osm_id, inregions, tid) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 		    $stmt = $mysqli->prepare($sql);
-		    $stmt->bind_param('iiiissddissiiidsiis', $accuracy, $altitude, $battery_level, $heading, $description, $event, $latitude, $longitude, $radius, $trig, $tracker_id, $epoch, $vertical_accuracy, $velocity, $pressure, $connection, $place_id, $osm_id, $inregions);
+		    $stmt->bind_param('iiiissddissiiidsiiss', $accuracy, $altitude, $battery_level, $heading, $description, $event, $latitude, $longitude, $radius, $trig, $tracker_id, $epoch, $vertical_accuracy, $velocity, $pressure, $connection, $place_id, $osm_id, $inregions,$device_id);
 			    
 		    if ($stmt->execute()){
 		    	

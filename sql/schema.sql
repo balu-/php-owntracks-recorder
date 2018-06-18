@@ -11,6 +11,7 @@ CREATE TABLE `locations` (
   `radius` int(11) DEFAULT NULL,
   `trig` varchar(1) DEFAULT NULL,
   `tracker_id` char(2) DEFAULT NULL,
+  `tid` VARCHAR(45) NOT NULL,
   `epoch` int(11) DEFAULT NULL,
   `vertical_accuracy` int(11) DEFAULT NULL,
   `velocity` int(11) DEFAULT NULL,
