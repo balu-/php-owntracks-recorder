@@ -60,9 +60,7 @@
 		    $stmt->close();
 		    $response['status'] = true;
 		    $response['markers'] = json_encode($markers);
-	    	
-	    	
-	    	
+	    		
 	    }else if($_REQUEST['action'] === 'deleteMarker'){
 	    	
 	    	if(!array_key_exists('epoch', $_REQUEST)){
@@ -167,12 +165,45 @@
 		    		}
 					
 					$stmt->close();
-	    		}
-	    		
+	    		}	    		
 	    	}
+
+	    } else if($_REQUEST['action'] === 'getInregions'){
 	    	
+	    	if(array_key_exists('tid', $_REQUEST)){
+		        $tid = strVal($_REQUEST['tid']);
+		    } 
+
+		    $sql = "SELECT tracker_id, n.tid, inregions, epoch from ".$_config['sql_prefix']."locations l join (SELECT max(epoch) as e, tid FROM ".$_config['sql_prefix']."`locations` ";
+
+		    if(isset($tid)){
+		    	$sql.="where tid like ? ";
+		    }
+		    $sql.="GROUP BY(tid)) n ON (l.epoch = n.e and l.tid = n.tid)";
+		    
+		    if ($stmt = $mysqli->prepare($sql)){
+		    	if(isset($tid)){
+		   			$stmt->bind_param('s', $tid);
+		   		}
+				$stmt->execute();
+				$result = $stmt->get_result();
+				$stmt->store_result();
+			    
+			    while($data = $result->fetch_assoc()){ 
+			        //Loop through results here $data[] 
+			        $response[$data['tracker_id']] = json_decode($data['inregions']);
+			        $response[$data['tid']] = json_decode($data['inregions']);
+			    }  
+			    $stmt->close();
+		    } else {
+		        $response['status'] = false;
+		        $response['error'] = $mysqli->error;
+		        $response['sql'] = $sql;
+		        http_response_code(500);
+		    }
+
 	    }else{
-	    	$response['error'] = "No action to perform";
+	    	$response['error'] = "No action to perform ";
 	    	$response['status'] = false;
 	    	http_response_code(404);
 	    }
